@@ -1,0 +1,29 @@
+---
+import Base from "@/layouts/Base.astro";
+import Tone from "@/components/Tone.astro";
+import Button from "@/components/Button.astro";
+import { notFound } from "@/content/venora-content.ts";
+import { cta } from "@/content/navigation.ts";
+---
+
+<Base title="Page not found">
+  <section class="nf container">
+    <Tone line={notFound.title} as="h1" class="h1" />
+    <p class="lead">{notFound.body}</p>
+    <div class="actions">
+      <Button href="/homes">{cta.viewHomes}</Button>
+      <Button href="/" variant="outline">Home</Button>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    display: grid;
+    justify-items: start;
+    align-content: center;
+    gap: 1.5rem;
+    min-height: 80svh;
+    padding-top: var(--header-h);
+  }
+</style>

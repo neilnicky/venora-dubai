@@ -1,0 +1,80 @@
+---
+// Standalone enquiry page: direct links, no-JS fallback for every enquiry CTA (?home=&type=&interest=).
+import Base from "@/layouts/Base.astro";
+import Tone from "@/components/Tone.astro";
+import EnquiryForm from "@/components/EnquiryForm.astro";
+import Icon from "@/components/Icon.astro";
+import { enquiry, seo, steps } from "@/content/venora-content.ts";
+import { siteConfig } from "@/content/site-config.ts";
+
+const ig = siteConfig.contact.instagram;
+---
+
+<Base title="Enquire" description={seo.enquireDescription} dialog={false}>
+  <section class="enquire container" aria-labelledby="enquire-title">
+    <div class="enquire__intro">
+      <nav class="crumbs small" aria-label="Breadcrumb">
+        <ol role="list"><li><a href="/">Home</a></li><li aria-current="page">Enquire</li></ol>
+      </nav>
+      <Tone line={enquiry.title} as="h1" class="h1" id="enquire-title" />
+      <p class="lead">{enquiry.dek}</p>
+      <ol class="enquire__steps small" role="list">
+        {steps.items.map((s, i) => <li><span class="muted">{String(i + 1).padStart(2, "0")}</span> {s.lead}</li>)}
+      </ol>
+      <a class="enquire__ig" href={ig.dmUrl} target="_blank" rel="noopener">
+        <Icon name="instagram" /> Prefer to write it yourself? Message @{ig.handle}<span class="visually-hidden"> (opens in a new tab)</span>
+      </a>
+    </div>
+    <div class="enquire__form">
+      <EnquiryForm id="page" />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .enquire {
+    display: grid;
+    gap: 3rem;
+    padding-top: calc(var(--header-h) + clamp(2rem, 5vw, 4rem));
+    padding-bottom: var(--section-y);
+  }
+  @media (min-width: 900px) {
+    .enquire {
+      grid-template-columns: 43.26fr 56.74fr;
+      gap: 4rem;
+    }
+  }
+  .enquire__intro {
+    display: grid;
+    align-content: start;
+    gap: 1.5rem;
+  }
+  .enquire__intro .h1 {
+    margin-top: 1rem;
+  }
+  .enquire__steps {
+    display: grid;
+    gap: 0.6rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+  .enquire__ig {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--fs-small);
+  }
+  .enquire__ig :global(svg) {
+    width: 1.2rem;
+    flex: none;
+  }
+  .enquire__form {
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+    border-radius: var(--radius);
+    background: var(--sand-100);
+  }
+  .enquire__form :global(.enq__home),
+  .enquire__form :global(.enq__composed) {
+    background: var(--paper);
+  }
+</style>

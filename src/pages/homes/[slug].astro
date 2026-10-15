@@ -1,0 +1,284 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getImage } from "astro:assets";
+import Base from "@/layouts/Base.astro";
+import Still from "@/components/Still.astro";
+import Button from "@/components/Button.astro";
+import Icon from "@/components/Icon.astro";
+import PropertyCard from "@/components/PropertyCard.astro";
+import { homePage } from "@/content/venora-content.ts";
+import { cta } from "@/content/navigation.ts";
+import { siteConfig } from "@/content/site-config.ts";
+import type { Property } from "@/content/types.ts";
+import { allHomes, displayValue, formatDate, relatedHomes, typeLabels } from "@/lib/homes.ts";
+import { filmSrc, still } from "@/lib/media.ts";
+
+export const getStaticPaths = (() => allHomes().map((home) => ({ params: { slug: home.slug }, props: { home } }))) satisfies GetStaticPaths;
+
+const { home } = Astro.props as { home: Property };
+const onRequest = homePage.onRequest;
+const facts: [string, string][] = [
+  ["Type", typeLabels[home.type].one],
+  ["Status", `${homePage.statusValue} on ${formatDate(home.presentedOn)}`],
+  ["Location", displayValue(home.location.community, (c) => `${c}, Dubai`, `Dubai · community ${onRequest.toLowerCase()}`)],
+  ["Price", displayValue(home.price, (p) => `${p.currency} ${p.amount.toLocaleString("en-GB")}`, onRequest)],
+  ["Bedrooms", displayValue(home.bedrooms, String, onRequest)],
+  ["Bathrooms", displayValue(home.bathrooms, String, onRequest)],
+  ["Size", displayValue(home.size, (s) => `${s.value.toLocaleString("en-GB")} ${s.unit}`, onRequest)],
+  ["Developer", displayValue(home.developer, String, onRequest)],
+];
+const poster = await getImage({ src: still(home.media.poster.key), width: 720, format: "webp" });
+const related = relatedHomes(home, 3);
+const url = new URL(`/homes/${home.slug}`, Astro.site).href;
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: home.title,
+  url,
+  about: { "@type": "Residence", name: home.title, address: { "@type": "PostalAddress", addressLocality: "Dubai", addressCountry: "AE" } },
+  provider: { "@type": "RealEstateAgent", name: siteConfig.name, sameAs: [siteConfig.contact.instagram.profileUrl] },
+};
+---
+
+<Base
+  title={home.title}
+  description={`${typeLabels[home.type].one} presented for sale in Dubai by Venora on ${formatDate(home.presentedOn)}. Watch the walkthrough and ask for price and availability.`}
+  ogStill={home.media.poster.key}
+  jsonLd={jsonLd}
+>
+  <article class="home container" aria-labelledby="home-title">
+    <div class="home__media">
+      <figure class="film" data-film>
+        <video
+          class="cover"
+          playsinline
+          preload="none"
+          poster={poster.src}
+          data-film-video
+          data-src={filmSrc(home)}
+          style={`object-position:${home.media.poster.focal}`}
+          aria-label={`${homePage.filmLabel}: ${home.title}`}
+        >
+        </video>
+        <button class="film__play" type="button" data-film-play>
+          <span class="film__icon"><Icon name="play" /></span>
+          <span>{homePage.playLabel}</span>
+        </button>
+        <figcaption class="visually-hidden">{home.media.poster.alt}</figcaption>
+      </figure>
+    </div>
+
+    <div class="home__info">
+      <nav class="crumbs small" aria-label="Breadcrumb">
+        <ol role="list">
+          <li><a href="/">Home</a></li>
+          <li><a href="/homes">Homes</a></li>
+          <li aria-current="page">{typeLabels[home.type].one}</li>
+        </ol>
+      </nav>
+      <p class="eyebrow home__eyebrow">{typeLabels[home.type].one} · Dubai</p>
+      <h1 class="h2 home__title" id="home-title">{home.title}</h1>
+      <p class="lead muted">Presented on <time datetime={home.presentedOn}>{formatDate(home.presentedOn)}</time></p>
+      <div class="actions">
+        <Button enquire={{ home: home.slug, type: home.type }}>{cta.enquireHome}</Button>
+        <Button href={home.source.url} external variant="outline" icon="external">{cta.watchOnInstagram}</Button>
+      </div>
+
+      <section class="block" aria-labelledby="facts-title">
+        <h2 class="caption block__title" id="facts-title">{homePage.factsTitle}</h2>
+        <dl class="facts">
+          {
+            facts.map(([k, v]) => (
+              <div class="facts__row">
+                <dt class="small muted">{k}</dt>
+                <dd class={v.includes(onRequest.toLowerCase()) || v === onRequest ? "facts__pending" : undefined}>{v}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+
+      <section class="block" aria-labelledby="observed-title">
+        <h2 class="caption block__title" id="observed-title">{homePage.observedTitle}</h2>
+        <ul class="observed" role="list">
+          {home.observed.map((o) => <li>{o}</li>)}
+        </ul>
+      </section>
+
+      <section class="block" aria-labelledby="caption-title">
+        <h2 class="caption block__title" id="caption-title">{homePage.captionTitle}</h2>
+        <blockquote class="quote">
+          <p>"{home.source.caption}"</p>
+          <footer class="small muted">
+            @{siteConfig.contact.instagram.handle} on Instagram, <time datetime={home.presentedOn}>{formatDate(home.presentedOn)}</time>
+          </footer>
+        </blockquote>
+      </section>
+
+      <div class="gallery">
+        {[home.media.poster, ...home.media.gallery].map((s) => <Still still={s} sizes="(min-width: 900px) 22vw, 46vw" widths={[360, 540]} class="cover" />)}
+      </div>
+    </div>
+  </article>
+
+  <section class="section section--sand more" aria-labelledby="more-title">
+    <div class="container">
+      <div class="more__head">
+        <h2 class="h2" id="more-title">{homePage.moreTitle}</h2>
+        <Button href="/homes" variant="outline">{cta.allHomes}</Button>
+      </div>
+      <div class="more__grid">
+        {related.map((h) => <PropertyCard home={h} />)}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .home {
+    display: grid;
+    gap: 2.5rem;
+    padding-top: calc(var(--header-h) + 1.5rem);
+    padding-bottom: var(--section-y);
+  }
+  @media (min-width: 900px) {
+    .home {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(3rem, 6vw, 6rem);
+      padding-top: calc(var(--header-h) + 3rem);
+    }
+    .home__media {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+      align-self: start;
+    }
+  }
+  .film {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-height: calc(100svh - var(--header-h) - 3rem);
+    margin-inline: auto;
+    overflow: hidden;
+    border-radius: 999px 999px 0 0;
+    background: var(--teal-900);
+  }
+  .film.is-playing {
+    border-radius: var(--radius);
+    transition: border-radius 0.6s var(--ease-out);
+  }
+  .film__play {
+    position: absolute;
+    inset: auto 0 0;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 2.5rem 1.5rem 1.5rem;
+    border: 0;
+    background: linear-gradient(0deg, rgb(1 35 37 / 75%), transparent);
+    color: var(--gold-200);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+  }
+  .film__icon {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    background: var(--gold-200);
+    color: var(--teal-900);
+    transition: transform 0.3s var(--ease-out);
+  }
+  .film__icon :global(svg) {
+    width: 1.2rem;
+    margin-left: 2px;
+  }
+  .film__play:hover .film__icon {
+    transform: scale(1.08);
+  }
+  .film.is-playing .film__play {
+    display: none;
+  }
+  .home__info {
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+  }
+  .home__eyebrow {
+    margin-top: 0.75rem;
+    color: var(--gold-700);
+  }
+  .block {
+    margin-top: 1.75rem;
+  }
+  .block__title {
+    margin-bottom: 0.75rem;
+  }
+  .facts__row {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: 1rem;
+    padding-block: 0.8rem;
+    border-top: 1px solid var(--line);
+  }
+  .facts__row:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .facts__pending {
+    color: var(--ink-mute);
+  }
+  .observed {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .observed li {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  .observed li::before {
+    content: "";
+    position: absolute;
+    left: 0.2rem;
+    top: 0.62em;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--gold-700);
+  }
+  .quote {
+    display: grid;
+    gap: 0.5rem;
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--gold-200);
+  }
+  .quote p {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    line-height: 1.3;
+  }
+  .gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+  .gallery :global(picture),
+  .gallery :global(img) {
+    aspect-ratio: 3 / 4;
+  }
+  .more__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .more__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: 2rem clamp(1rem, 2vw, 1.75rem);
+  }
+</style>

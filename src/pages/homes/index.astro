@@ -1,0 +1,161 @@
+---
+// Homes archive, scoped to what the data supports: type filter and date sort, no map or price.
+// All cards render statically (works without JS); src/motion/homes-filter.ts applies ?type & ?sort.
+import Base from "@/layouts/Base.astro";
+import Tone from "@/components/Tone.astro";
+import PropertyCard from "@/components/PropertyCard.astro";
+import Icon from "@/components/Icon.astro";
+import { homesPage, seo } from "@/content/venora-content.ts";
+import { allHomes, countByType, propertyTypes, typeLabels } from "@/lib/homes.ts";
+
+const homes = allHomes();
+const counts = countByType(homes);
+const filters = [
+  { value: "all", label: homesPage.all, count: counts.all },
+  ...propertyTypes.filter((t) => counts[t] > 0).map((t) => ({ value: t, label: typeLabels[t].many, count: counts[t] })),
+];
+---
+
+<Base title={homesPage.title} description={seo.homesDescription}>
+  <section class="homes container" aria-labelledby="homes-title">
+    <nav class="crumbs small" aria-label="Breadcrumb">
+      <ol role="list"><li><a href="/">Home</a></li><li aria-current="page">{homesPage.title}</li></ol>
+    </nav>
+    <p class="eyebrow homes__eyebrow">{homesPage.eyebrow}</p>
+    <h1 class="h1" id="homes-title">{homesPage.title}</h1>
+    <Tone line={homesPage.dek} as="p" class="lead homes__dek" />
+
+    <div class="toolbar" data-homes-toolbar>
+      <div class="toolbar__filters" role="group" aria-label={homesPage.filterLabel}>
+        {
+          filters.map((f) => (
+            <a class="pill" href={f.value === "all" ? "/homes" : `/homes?type=${f.value}`} data-filter={f.value} aria-pressed={f.value === "all" ? "true" : "false"}>
+              {f.label} <span class="pill__count">{f.count}</span>
+            </a>
+          ))
+        }
+      </div>
+      <div class="toolbar__sort">
+        <label class="small" for="homes-sort">{homesPage.sortLabel}</label>
+        <div class="sort-select">
+          <select id="homes-sort" data-sort>
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </select>
+          <Icon name="down" />
+        </div>
+      </div>
+    </div>
+
+    <p class="small homes__count" role="status" aria-live="polite" data-homes-count>Showing {homes.length} homes</p>
+
+    <div class="homes__grid" data-homes-grid>
+      {homes.map((h) => <PropertyCard home={h} headingLevel="h2" />)}
+    </div>
+    <p class="homes__empty lead muted" data-homes-empty hidden>{homesPage.empty}</p>
+    <p class="small muted homes__note">{homesPage.note}</p>
+  </section>
+</Base>
+
+<style>
+  .homes {
+    padding-top: calc(var(--header-h) + clamp(2rem, 5vw, 4rem));
+    padding-bottom: var(--section-y);
+  }
+  .homes__eyebrow {
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--gold-700);
+  }
+  .homes__dek {
+    max-width: 40rem;
+    margin-top: 1.25rem;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-block: 1rem;
+    border-block: 1px solid var(--line);
+  }
+  .toolbar__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    font-size: var(--fs-small);
+    text-decoration: none;
+    transition:
+      background-color 0.25s,
+      color 0.25s,
+      border-color 0.25s;
+  }
+  .pill:hover {
+    border-color: var(--ink);
+  }
+  .pill[aria-pressed="true"] {
+    background: var(--teal-900);
+    border-color: var(--teal-900);
+    color: var(--gold-200);
+  }
+  .pill__count {
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+  .toolbar__sort {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .sort-select {
+    position: relative;
+  }
+  .sort-select select {
+    min-height: 2.75rem;
+    padding: 0.5rem 2.25rem 0.5rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    background: transparent;
+    font-size: var(--fs-small);
+    appearance: none;
+    cursor: pointer;
+  }
+  .sort-select :global(svg) {
+    position: absolute;
+    right: 0.9rem;
+    top: 50%;
+    width: 0.9rem;
+    translate: 0 -50%;
+    pointer-events: none;
+  }
+  .homes__count {
+    margin-block: 1.5rem;
+    color: var(--ink-mute);
+  }
+  .homes__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: clamp(2rem, 3vw, 3rem) clamp(1rem, 2vw, 1.75rem);
+  }
+  .homes__grid > :global([hidden]) {
+    display: none;
+  }
+  .homes__empty[hidden] {
+    display: none;
+  }
+  .homes__note {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    max-width: 40rem;
+  }
+</style>
