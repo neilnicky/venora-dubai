@@ -1,0 +1,345 @@
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-700);
+  outline-offset: 3px;
+}
+.on-dark :focus-visible {
+  outline-color: var(--gold-200);
+}
+
+::selection {
+  background: var(--gold-200);
+  color: var(--teal-900);
+}
+
+/* ---------- Layout ---------- */
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Editorial grid: caption column / content column (≈ 43 : 57). */
+.split {
+  display: grid;
+  gap: 1.5rem 2rem;
+}
+@media (min-width: 900px) {
+  .split {
+    grid-template-columns: 43.26fr 56.74fr;
+    gap: 0;
+  }
+}
+
+.section {
+  padding-block: var(--section-y);
+  background: var(--section-bg, var(--paper));
+}
+.section--sand {
+  --section-bg: var(--sand-100);
+}
+.section--dark,
+.on-dark {
+  --section-bg: var(--teal-900);
+  color: var(--gold-200);
+}
+
+/* ---------- Type ---------- */
+.h1,
+.h2,
+.h3,
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.h1 {
+  font-size: var(--fs-h1);
+  line-height: 1;
+}
+.h2 {
+  font-size: var(--fs-h2);
+  line-height: 1.04;
+}
+.h3 {
+  font-size: var(--fs-h3);
+  line-height: 1.15;
+}
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+.small {
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+.eyebrow {
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.caption {
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+/* Two-tone lines: the tail sits in the muted tone. */
+.em {
+  color: var(--ink-mute);
+}
+.on-dark .em,
+.section--dark .em {
+  color: var(--gold-mute);
+}
+.muted {
+  color: var(--ink-mute);
+}
+.on-dark .muted,
+.section--dark .muted {
+  color: var(--gold-mute);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  border-radius: 100px;
+  background: var(--teal-900);
+  color: var(--gold-200);
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible {
+  transform: none;
+}
+
+/* ---------- Media ---------- */
+.cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Line wipe (per-line overlay, scaleX 1 → 0, 90% of the section colour) ---------- */
+[data-wipe] .wipe-line {
+  position: relative;
+  display: block;
+  width: fit-content;
+}
+[data-wipe] .wipe-cover {
+  position: absolute;
+  inset: -0.08em -0.1em;
+  background: var(--section-bg, var(--paper));
+  opacity: 0.9;
+  transform-origin: 100% 50%;
+  pointer-events: none;
+}
+
+/* ---------- Enter reveals ---------- */
+[data-reveal] {
+  transition:
+    opacity var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out);
+}
+.js [data-reveal]:not(.is-in) {
+  opacity: 0;
+  transform: translateY(1.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .js [data-reveal]:not(.is-in) {
+    opacity: 1;
+    transform: none;
+  }
+  [data-wipe] .wipe-cover {
+    display: none;
+  }
+}
+
+/* ---------- Buttons (pill: 44px, radius 100px, 13.5px/500, arrow after) ---------- */
+.btn {
+  --btn-bg: var(--teal-900);
+  --btn-fg: var(--gold-200);
+  --btn-border: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.72rem 1.4rem;
+  border: 1px solid var(--btn-border);
+  border-radius: 100px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-size: var(--fs-ui);
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.btn:hover {
+  transform: scale(1.03);
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn svg {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.btn:hover svg {
+  transform: translateX(3px);
+}
+.btn--light {
+  --btn-bg: var(--gold-200);
+  --btn-fg: var(--teal-900);
+}
+.btn--outline {
+  --btn-bg: transparent;
+  --btn-fg: var(--ink);
+  --btn-border: var(--line);
+}
+.btn--outline-light {
+  --btn-bg: transparent;
+  --btn-fg: var(--gold-200);
+  --btn-border: var(--line-dark);
+}
+.btn--outline:hover {
+  --btn-bg: var(--ink);
+  --btn-fg: var(--paper);
+}
+.btn--outline-light:hover {
+  --btn-bg: var(--gold-200);
+  --btn-fg: var(--teal-900);
+}
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+  transform: none;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ---------- Breadcrumb (inner pages) ---------- */
+.crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-mute);
+}
+.crumbs li + li::before {
+  content: "/";
+  margin-right: 0.5rem;
+}
+.crumbs a {
+  text-decoration: none;
+}
+.crumbs a:hover {
+  text-decoration: underline;
+}

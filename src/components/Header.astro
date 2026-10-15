@@ -1,0 +1,234 @@
+---
+import Wordmark from "./Wordmark.astro";
+import Icon from "./Icon.astro";
+import Button from "./Button.astro";
+import { primaryNav, cta } from "@/content/navigation.ts";
+import { siteConfig } from "@/content/site-config.ts";
+
+interface Props {
+  /** Start transparent over a dark hero (home page). */
+  overDark?: boolean;
+}
+const { overDark = false } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+---
+
+<header class="header" data-header data-theme={overDark ? "dark" : "light"} data-solid={overDark ? "false" : "true"}>
+  <div class="header__inner container">
+    <a class="header__brand" href="/" aria-label={`${siteConfig.name}, home`}>
+      <Wordmark class="header__mark" decorative />
+    </a>
+    <nav class="header__nav" aria-label="Primary">
+      <ul role="list">
+        {
+          primaryNav.map((l) => (
+            <li>
+              <a href={l.href} aria-current={l.href === path ? "page" : undefined}>
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="header__cta">
+      <Button enquire icon="none" class="header__btn">{cta.message}</Button>
+      <button class="header__burger" type="button" aria-label="Open menu" aria-controls="site-menu" aria-expanded="false" data-menu-open>
+        <Icon name="menu" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog class="menu on-dark" id="site-menu" aria-label="Menu" data-menu>
+  <div class="menu__top container">
+    <a class="header__brand" href="/" aria-label={`${siteConfig.name}, home`}><Wordmark class="header__mark" decorative /></a>
+    <button class="header__burger" type="button" aria-label="Close menu" data-menu-close autofocus><Icon name="close" /></button>
+  </div>
+  <nav class="menu__nav container" aria-label="Menu">
+    <ul role="list">
+      {
+        primaryNav.map((l) => (
+          <li>
+            <a class="display" href={l.href}>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+      <li><a class="display" href="/enquire">Enquire</a></li>
+    </ul>
+    <a class="menu__ig" href={siteConfig.contact.instagram.profileUrl} target="_blank" rel="noopener">
+      <Icon name="instagram" /> @{siteConfig.contact.instagram.handle}<span class="visually-hidden"> (opens in a new tab)</span>
+    </a>
+  </nav>
+</dialog>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    height: var(--header-h);
+    color: var(--ink);
+    transition:
+      transform 0.45s var(--ease-out),
+      background-color 0.35s ease,
+      color 0.35s ease,
+      box-shadow 0.35s ease;
+  }
+  .header[data-theme="dark"] {
+    color: var(--gold-200);
+  }
+  .header[data-solid="true"] {
+    background: rgb(251 250 246 / 92%);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 1px 0 var(--line);
+  }
+  .header[data-solid="true"][data-theme="dark"] {
+    background: rgb(1 49 52 / 92%);
+    box-shadow: 0 1px 0 var(--line-dark);
+  }
+  .header[data-hidden="true"] {
+    transform: translateY(-100%);
+  }
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    height: 100%;
+  }
+  .header__brand {
+    display: block;
+    color: inherit;
+    padding-block: 0.5rem;
+  }
+  .header__mark {
+    height: 1.15rem;
+    width: auto;
+    aspect-ratio: 861 / 150;
+  }
+  .header__nav ul {
+    display: flex;
+    gap: clamp(1.25rem, 2.4vw, 2.25rem);
+  }
+  .header__nav a {
+    position: relative;
+    font-size: var(--fs-small);
+    font-weight: 500;
+    text-decoration: none;
+    padding-block: 0.5rem;
+  }
+  .header__nav a::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0.2rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s var(--ease-out);
+  }
+  .header__nav a:hover::after,
+  .header__nav a[aria-current="page"]::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  .header__cta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .header[data-theme="dark"] :global(.header__btn) {
+    --btn-bg: var(--gold-200);
+    --btn-fg: var(--teal-900);
+  }
+  .header__burger {
+    display: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+  }
+  .header__burger :global(svg) {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  @media (max-width: 899px) {
+    .header__nav {
+      display: none;
+    }
+    .header__burger {
+      display: grid;
+    }
+    :global(.header__btn) {
+      display: none !important;
+    }
+  }
+
+  .menu {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--teal-900);
+    color: var(--gold-200);
+  }
+  .menu[open] {
+    display: flex;
+    flex-direction: column;
+    animation: menu-in 0.5s var(--ease-out);
+  }
+  .menu::backdrop {
+    background: transparent;
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-1rem);
+    }
+  }
+  .menu__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-h);
+  }
+  .menu__top .header__burger {
+    display: grid;
+  }
+  .menu__nav {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-block: 2.5rem 2rem;
+  }
+  .menu__nav ul {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .menu__nav .display {
+    display: inline-block;
+    font-size: clamp(2.25rem, 10vw, 3.5rem);
+    line-height: 1.15;
+    text-decoration: none;
+  }
+  .menu__ig {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--fs-small);
+    text-decoration: none;
+  }
+  .menu__ig :global(svg) {
+    width: 1.25rem;
+  }
+</style>

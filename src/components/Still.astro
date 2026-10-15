@@ -1,0 +1,29 @@
+---
+import { Picture } from "astro:assets";
+import type { Still } from "@/content/types.ts";
+import { still as load } from "@/lib/media.ts";
+
+interface Props {
+  still: Still;
+  /** Rendered widths; sources are 720px wide. */
+  widths?: number[];
+  sizes: string;
+  class?: string;
+  eager?: boolean;
+  decorative?: boolean;
+}
+const { still, widths = [360, 540, 720], sizes, class: className, eager = false, decorative = false } = Astro.props;
+---
+
+<Picture
+  src={load(still.key)}
+  widths={widths}
+  sizes={sizes}
+  formats={["avif", "webp"]}
+  alt={decorative ? "" : still.alt}
+  class={className}
+  style={`object-position:${still.focal}`}
+  loading={eager ? "eager" : "lazy"}
+  fetchpriority={eager ? "high" : undefined}
+  decoding="async"
+/>

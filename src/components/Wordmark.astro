@@ -1,0 +1,30 @@
+---
+import { wordmark } from "@/content/wordmark.ts";
+import { brand } from "@/content/venora-content.ts";
+
+interface Props {
+  class?: string;
+  /** Decorative copies are hidden from assistive tech. */
+  decorative?: boolean;
+  /** Stroke-only outline (hero). */
+  outline?: boolean;
+}
+const { class: className, decorative = false, outline = false } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox={wordmark.viewBox}
+  role={decorative ? undefined : "img"}
+  aria-label={decorative ? undefined : brand.wordmarkLabel}
+  aria-hidden={decorative ? "true" : undefined}
+  focusable="false"
+>
+  <path
+    d={wordmark.d}
+    fill={outline ? "none" : "currentColor"}
+    stroke={outline ? "currentColor" : "none"}
+    stroke-width={outline ? 1.2 : 0}
+    vector-effect={outline ? "non-scaling-stroke" : undefined}
+  />
+</svg>

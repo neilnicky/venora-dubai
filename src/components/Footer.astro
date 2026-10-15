@@ -1,0 +1,120 @@
+---
+import Wordmark from "./Wordmark.astro";
+import Icon from "./Icon.astro";
+import { footerNav } from "@/content/navigation.ts";
+import { footer, brand } from "@/content/venora-content.ts";
+import { siteConfig } from "@/content/site-config.ts";
+
+const ig = siteConfig.contact.instagram;
+const year = new Date().getFullYear();
+---
+
+<footer class="footer on-dark" data-header-theme="dark">
+  <div class="container footer__grid">
+    <div class="footer__intro">
+      <p class="eyebrow">{brand.tagline} · Dubai</p>
+      <p class="lead">{footer.blurb}</p>
+    </div>
+    <div class="footer__col">
+      <p class="footer__label small muted">{footer.contactLabel}</p>
+      <p class="small">{footer.contactText}</p>
+      <a class="footer__ig" href={ig.dmUrl} target="_blank" rel="noopener">
+        <Icon name="instagram" /> @{ig.handle}<span class="visually-hidden"> on Instagram (opens in a new tab)</span>
+      </a>
+    </div>
+    <nav class="footer__col" aria-label="Footer">
+      <ul role="list">
+        {
+          footerNav.map((l) => (
+            <li>
+              <a href={l.href} target={l.external ? "_blank" : undefined} rel={l.external ? "noopener" : undefined}>
+                {l.label}
+                {l.external && <span class="visually-hidden"> (opens in a new tab)</span>}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+  <div class="container footer__legal small muted">
+    <p>{footer.disclaimer}</p>
+    <p>© {year} {siteConfig.name}</p>
+  </div>
+  <div class="footer__mark" aria-hidden="true">
+    <Wordmark decorative />
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    overflow: hidden;
+    padding-top: clamp(4rem, 8vw, 7rem);
+    background: var(--teal-900);
+  }
+  .footer__grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 900px) {
+    .footer__grid {
+      grid-template-columns: 43.26fr 28fr 28.74fr;
+    }
+  }
+  .footer__intro {
+    display: grid;
+    gap: 1rem;
+    max-width: 26rem;
+  }
+  .footer__col {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+  }
+  .footer__col ul {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .footer__col a {
+    font-size: var(--fs-lead);
+    text-decoration: none;
+  }
+  .footer__col a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+  .footer__ig {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  .footer__ig :global(svg) {
+    width: 1.3rem;
+  }
+  .footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem 3rem;
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line-dark);
+  }
+  .footer__legal p:first-child {
+    max-width: 42rem;
+  }
+  /* Giant cropped wordmark bleeding off the bottom edge. */
+  .footer__mark {
+    margin-top: clamp(2rem, 5vw, 4rem);
+    margin-bottom: -6.5vw;
+    padding-inline: var(--gutter);
+    color: var(--gold-200);
+  }
+  .footer__mark :global(svg) {
+    width: 100%;
+    height: auto;
+  }
+</style>

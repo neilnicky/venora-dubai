@@ -1,0 +1,33 @@
+---
+import Icon from "./Icon.astro";
+import type { EnquiryPreset } from "@/lib/enquiry-preset.ts";
+import { enquireHref } from "@/lib/enquiry-preset.ts";
+
+interface Props {
+  href?: string;
+  /** Opens the enquiry dialog with these presets (falls back to /enquire without JS). */
+  enquire?: EnquiryPreset | true;
+  variant?: "ink" | "light" | "outline" | "outline-light";
+  icon?: "arrow" | "external" | "instagram" | "none";
+  external?: boolean;
+  class?: string;
+}
+const { href, enquire, variant = "ink", icon = "arrow", external = false, class: className } = Astro.props;
+const preset = enquire === true ? {} : enquire;
+const target = preset ? enquireHref(preset) : href;
+const cls = ["btn", variant !== "ink" && `btn--${variant}`, className].filter(Boolean).join(" ");
+---
+
+<a
+  class={cls}
+  href={target}
+  data-enquire={preset ? JSON.stringify(preset) : undefined}
+  target={external ? "_blank" : undefined}
+  rel={external ? "noopener" : undefined}
+>
+  {icon === "instagram" && <Icon name="instagram" />}
+  <slot />
+  {icon === "arrow" && <Icon name="arrow" />}
+  {icon === "external" && <Icon name="external" />}
+  {external && <span class="visually-hidden">(opens in a new tab)</span>}
+</a>

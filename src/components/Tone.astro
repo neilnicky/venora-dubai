@@ -1,0 +1,17 @@
+---
+import type { ToneLine } from "@/content/venora-content.ts";
+
+interface Props {
+  line: ToneLine;
+  as?: "h1" | "h2" | "h3" | "p";
+  class?: string;
+  /** Scroll-scrubbed line wipe. */
+  wipe?: boolean;
+  id?: string;
+}
+const { line, as: Tag = "h2", class: className, wipe = false, id } = Astro.props;
+---
+
+<Tag class={className} data-wipe={wipe ? "" : undefined} id={id}>
+  {line.lead}{line.tail && <> <span class="em">{line.tail}</span></>}
+</Tag>

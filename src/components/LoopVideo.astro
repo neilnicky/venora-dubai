@@ -1,0 +1,33 @@
+---
+import { getImage } from "astro:assets";
+import type { Still } from "@/content/types.ts";
+import { still as load } from "@/lib/media.ts";
+
+interface Props {
+  src: string;
+  poster: Still;
+  class?: string;
+  /** Start loading immediately (hero). Others load when they near the viewport. */
+  eager?: boolean;
+  /** Skip the poster when a visible still already sits underneath (cards). */
+  withPoster?: boolean;
+}
+const { src, poster, class: className, eager = false, withPoster = true } = Astro.props;
+const posterImg = withPoster ? await getImage({ src: load(poster.key), width: 540, format: "webp" }) : null;
+---
+
+<video
+  class={className}
+  muted
+  loop
+  playsinline
+  disablepictureinpicture
+  preload={eager ? "auto" : "none"}
+  poster={posterImg?.src}
+  data-loop
+  data-src={src}
+  style={`object-position:${poster.focal}`}
+  aria-hidden="true"
+  tabindex="-1"
+>
+</video>

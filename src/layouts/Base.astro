@@ -1,0 +1,73 @@
+---
+import "@fontsource/marcellus/400.css";
+import "@fontsource-variable/hanken-grotesk";
+import "@/styles/global.css";
+import { getImage } from "astro:assets";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import EnquiryDialog from "@/components/EnquiryDialog.astro";
+import { seo } from "@/content/venora-content.ts";
+import { siteConfig } from "@/content/site-config.ts";
+import { still } from "@/lib/media.ts";
+import { allHomes } from "@/lib/homes.ts";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Still key for the social card; defaults to the newest home's poster. */
+  ogStill?: string;
+  overDark?: boolean;
+  /** /enquire renders its own form, so it skips the dialog. */
+  dialog?: boolean;
+  jsonLd?: Record<string, unknown>;
+}
+const { title, description = seo.description, ogStill, overDark = false, dialog = true, jsonLd } = Astro.props;
+const fullTitle = title ? `${title} | ${seo.titleSuffix}` : seo.defaultTitle;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const og = await getImage({ src: still(ogStill ?? allHomes()[0]!.media.poster.key), width: 720, format: "jpg" });
+const ogUrl = new URL(og.src, Astro.site).href;
+const org = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  name: siteConfig.name,
+  url: siteConfig.url,
+  sameAs: [siteConfig.contact.instagram.profileUrl],
+  areaServed: "Dubai",
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#013134" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteConfig.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd ?? org)} />
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header overDark={overDark} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    {dialog && <EnquiryDialog />}
+    <script>
+      import "@/motion/main.ts";
+    </script>
+  </body>
+</html>

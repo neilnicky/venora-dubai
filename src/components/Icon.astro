@@ -1,0 +1,25 @@
+---
+interface Props {
+  name: "arrow" | "external" | "play" | "close" | "menu" | "instagram" | "down";
+  class?: string;
+}
+const { name, class: className } = Astro.props;
+---
+
+<svg class={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+  {name === "arrow" && <path d="M4 12h15m-6-6 6 6-6 6" />}
+  {name === "external" && <path d="M8 16 17 7m-8 0h8v8" />}
+  {name === "play" && <path d="M8 5.5v13l10.5-6.5L8 5.5Z" fill="currentColor" stroke="none" />}
+  {name === "close" && <path d="m6 6 12 12M18 6 6 18" />}
+  {name === "menu" && <path d="M3.5 9h17M3.5 15h17" />}
+  {name === "down" && <path d="m6 9 6 6 6-6" />}
+  {
+    name === "instagram" && (
+      <>
+        <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" stroke="none" />
+      </>
+    )
+  }
+</svg>

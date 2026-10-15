@@ -1,0 +1,81 @@
+---
+import EnquiryForm from "./EnquiryForm.astro";
+import Tone from "./Tone.astro";
+import Icon from "./Icon.astro";
+import { enquiry } from "@/content/venora-content.ts";
+---
+
+<dialog class="enq-dialog" aria-labelledby="enq-dialog-title" data-enquiry-dialog>
+  <div class="enq-dialog__card">
+    <div class="enq-dialog__head">
+      <Tone line={enquiry.title} as="h2" class="h2" id="enq-dialog-title" />
+      <button class="enq-dialog__close" type="button" aria-label={enquiry.close} data-dialog-close><Icon name="close" /></button>
+    </div>
+    <p class="small muted">{enquiry.dek}</p>
+    <EnquiryForm id="dlg" />
+  </div>
+</dialog>
+
+<style>
+  .enq-dialog {
+    width: min(40rem, calc(100% - 2rem));
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--paper);
+    color: var(--ink);
+    overscroll-behavior: contain;
+  }
+  .enq-dialog[open] {
+    animation: dlg-in 0.5s var(--ease-out);
+  }
+  .enq-dialog::backdrop {
+    background: rgb(1 35 37 / 62%);
+    backdrop-filter: blur(3px);
+  }
+  @keyframes dlg-in {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem) scale(0.98);
+    }
+  }
+  .enq-dialog__card {
+    display: grid;
+    gap: 1.25rem;
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+  }
+  .enq-dialog__head {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .enq-dialog__close {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.3s var(--ease-out);
+  }
+  .enq-dialog__close:hover {
+    transform: rotate(90deg);
+  }
+  .enq-dialog__close :global(svg) {
+    width: 1.1rem;
+  }
+  @media (max-width: 639px) {
+    .enq-dialog {
+      width: 100%;
+      max-width: none;
+      max-height: 92dvh;
+      margin: auto 0 0;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+  }
+</style>

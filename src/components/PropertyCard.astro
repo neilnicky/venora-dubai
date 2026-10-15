@@ -1,0 +1,97 @@
+---
+import Still from "./Still.astro";
+import LoopVideo from "./LoopVideo.astro";
+import Button from "./Button.astro";
+import type { Property } from "@/content/types.ts";
+import { cta } from "@/content/navigation.ts";
+import { homePage } from "@/content/venora-content.ts";
+import { formatDate, typeLabels } from "@/lib/homes.ts";
+import { loopSrc } from "@/lib/media.ts";
+
+interface Props {
+  home: Property;
+  headingLevel?: "h2" | "h3";
+}
+const { home, headingLevel: H = "h3" } = Astro.props;
+---
+
+<article class="pcard" data-home-card data-type={home.type} data-date={home.presentedOn} data-slug={home.slug}>
+  <div class="pcard__media">
+    <Still still={home.media.poster} sizes="(min-width: 1100px) 30vw, (min-width: 640px) 45vw, 92vw" class="cover" />
+    <LoopVideo class="cover pcard__video" src={loopSrc(home)} poster={home.media.poster} withPoster={false} />
+  </div>
+  <div class="pcard__body">
+    <p class="eyebrow pcard__type">{typeLabels[home.type].one} · <time datetime={home.presentedOn}>{formatDate(home.presentedOn, "short")}</time></p>
+    <H class="pcard__title">
+      <a href={`/homes/${home.slug}`} class="pcard__link">{home.title}</a>
+    </H>
+    <p class="small muted">{homePage.statusValue} · Price on request</p>
+    <div class="pcard__actions">
+      <Button enquire={{ home: home.slug, type: home.type }} variant="outline" icon="none">{cta.enquireHome}</Button>
+    </div>
+  </div>
+</article>
+
+<style>
+  .pcard {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+  }
+  .pcard__media {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: var(--sand-100);
+  }
+  .pcard__media :global(img) {
+    transition: transform 1.2s var(--ease-out);
+  }
+  .pcard__media :global(.pcard__video) {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .pcard:hover .pcard__media :global(img) {
+    transform: scale(1.04);
+  }
+  .pcard:hover .pcard__media :global(.pcard__video.is-playing) {
+    opacity: 1;
+  }
+  .pcard__body {
+    display: grid;
+    gap: 0.45rem;
+  }
+  .pcard__type {
+    color: var(--gold-700);
+  }
+  .pcard__title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 1.15;
+  }
+  /* Whole card opens the home; the enquiry button sits above the stretched link. */
+  .pcard__link {
+    text-decoration: none;
+  }
+  .pcard__link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .pcard__link:focus-visible {
+    outline: none;
+  }
+  .pcard:has(.pcard__link:focus-visible) {
+    outline: 2px solid var(--gold-700);
+    outline-offset: 6px;
+  }
+  .pcard__actions {
+    position: relative;
+    z-index: 2;
+    margin-top: 0.5rem;
+  }
+</style>
