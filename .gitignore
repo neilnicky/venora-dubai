@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+test-results/
+playwright-report/
+.playwright-cli/
+# Raw Instagram source tracks (~110 MB). Rebuild web media with `pnpm media`.
+media-source/
+.DS_Store
+
+# Internal briefs, research notes and process docs: kept locally, never committed.
+docs/internal/
+/*_BRIEF.md
+/*_brief.md
