@@ -1,0 +1,258 @@
+---
+// Sticky scroll scene (timeline in src/motion/hero.ts, docs/design-system.md).
+// Layers: film frame → wordmark-masked facade → gold outline → sand haze → copy
+// → veil that hands off to the next section.
+import LoopVideo from "@/components/LoopVideo.astro";
+import Still from "@/components/Still.astro";
+import Wordmark from "@/components/Wordmark.astro";
+import Button from "@/components/Button.astro";
+import Tone from "@/components/Tone.astro";
+import { hero, brand } from "@/content/venora-content.ts";
+import { cta } from "@/content/navigation.ts";
+import { wordmark } from "@/content/wordmark.ts";
+import { getHome } from "@/lib/homes.ts";
+import { loopSrc } from "@/lib/media.ts";
+
+// The white villa approach: its facade reads best inside the letterforms.
+const feature = getHome("villa-2026-10-06")!;
+const maskSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${wordmark.viewBox}" preserveAspectRatio="none"><path d="${wordmark.d}"/></svg>`;
+const mask = `url("data:image/svg+xml,${encodeURIComponent(maskSvg)}")`;
+const words = hero.title.split(" ");
+---
+
+<section class="hero on-dark" data-hero data-header-theme="dark" aria-labelledby="hero-title" style={`--mask:${mask};--ratio:${wordmark.width}/${wordmark.height}`}>
+  <div class="hero__stage">
+    <div class="hero__bg" aria-hidden="true"></div>
+
+    <div class="hero__frame" data-hero-frame>
+      <LoopVideo class="cover" src={loopSrc(feature)} poster={feature.media.poster} eager />
+    </div>
+
+    <div class="hero__mark" data-hero-mark aria-hidden="true">
+      <div class="hero__composite" data-hero-composite>
+        <Still class="cover" still={feature.media.poster} sizes="88vw" widths={[720]} decorative />
+      </div>
+      <Wordmark class="hero__outline" outline decorative />
+    </div>
+    <p class="hero__tag eyebrow" data-hero-tag aria-hidden="true">{brand.tagline}</p>
+
+    <div class="hero__haze" data-hero-haze aria-hidden="true"></div>
+
+    <div class="hero__content" data-hero-content>
+      <div class="container hero__inner">
+        <p class="eyebrow hero__eyebrow">{hero.eyebrow}</p>
+        <h1 class="h1 hero__title" id="hero-title">
+          {
+            words.map((w, i) => (
+              <span class="hero__word" style={`--i:${i}`}>
+                <span>{w}</span>
+              </span>
+            ))
+          }
+        </h1>
+        <Tone line={hero.dek} as="p" class="lead hero__dek" />
+        <div class="actions hero__actions">
+          <Button href="/homes" variant="light">{cta.viewHomes}</Button>
+          <Button enquire variant="outline-light" icon="none">{cta.message}</Button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__veil" data-hero-veil aria-hidden="true"></div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    height: 400svh; /* 100svh stage + 300svh of scroll travel */
+    background: var(--teal-900);
+  }
+  .hero__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60% 55% at 50% 78%, var(--teal-700) 0%, transparent 70%),
+      linear-gradient(180deg, var(--teal-950) 0%, var(--teal-900) 55%, var(--teal-800) 100%);
+  }
+
+  /* Portrait film frame, rising from the bottom of the stage. */
+  .hero__frame {
+    position: absolute;
+    left: 50%;
+    top: 67svh;
+    width: clamp(13.5rem, 25vw, 22rem);
+    aspect-ratio: 9 / 16;
+    translate: -50% 0;
+    border-radius: 999px 999px 0 0;
+    overflow: hidden;
+    transform-origin: 50% 0;
+    will-change: transform, opacity;
+    box-shadow: 0 2rem 6rem rgb(0 0 0 / 35%);
+  }
+
+  /* Wordmark: outline and image-in-type share one box. */
+  .hero__mark {
+    position: absolute;
+    left: 50%;
+    top: 47%;
+    width: min(88vw, 72rem);
+    aspect-ratio: var(--ratio);
+    translate: -50% -50%;
+    pointer-events: none;
+  }
+  .hero__composite {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    -webkit-mask: var(--mask) center / 100% 100% no-repeat;
+    mask: var(--mask) center / 100% 100% no-repeat;
+    will-change: opacity, transform;
+  }
+  .hero__composite :global(img) {
+    object-position: 50% 62% !important;
+  }
+  .hero__outline {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--gold-200);
+    opacity: 0;
+    will-change: opacity;
+  }
+  .hero__tag {
+    position: absolute;
+    left: 50%;
+    top: calc(47% + min(88vw, 72rem) * 150 / 861 / 2 + 1.75rem);
+    translate: -50% 0;
+    color: var(--gold-200);
+    letter-spacing: 0.42em;
+    white-space: nowrap;
+    opacity: 0;
+  }
+
+  /* Warm haze bank rising over the stage. */
+  .hero__haze {
+    position: absolute;
+    inset: auto -10% -2px;
+    height: 70svh;
+    background:
+      radial-gradient(50% 60% at 30% 100%, rgb(242 238 228 / 55%), transparent 70%),
+      radial-gradient(45% 55% at 75% 100%, rgb(242 238 228 / 45%), transparent 70%),
+      linear-gradient(0deg, rgb(251 250 246 / 70%) 0%, rgb(251 250 246 / 0%) 60%);
+    transform: translateY(55%);
+    will-change: transform;
+    pointer-events: none;
+  }
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .hero__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-start;
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 9svh, 6rem));
+    text-align: center;
+    will-change: transform, opacity;
+  }
+  .hero__inner {
+    display: grid;
+    justify-items: center;
+    gap: 1.25rem;
+  }
+  .hero__eyebrow {
+    color: var(--gold-mute);
+  }
+  .hero__title {
+    max-width: 17ch;
+    font-size: clamp(2.75rem, 6.6vw, 6rem);
+    color: var(--gold-200);
+  }
+  .hero__word {
+    display: inline-block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+    vertical-align: top;
+  }
+  .hero__word > span {
+    display: inline-block;
+    animation: word-rise 1.1s var(--ease-out) both;
+    animation-delay: calc(0.15s + var(--i) * 0.07s);
+  }
+  .hero__word:not(:last-child)::after {
+    content: "\00a0";
+  }
+  @keyframes word-rise {
+    from {
+      transform: translateY(105%);
+    }
+  }
+  .hero__dek {
+    max-width: 34rem;
+    color: var(--gold-200);
+    animation: fade-up 1s var(--ease-out) 0.55s both;
+  }
+  .hero__actions {
+    justify-content: center;
+    animation: fade-up 1s var(--ease-out) 0.7s both;
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+  }
+
+  @media (max-width: 699px) {
+    .hero__content {
+      padding-top: calc(var(--header-h) + 1.75rem);
+    }
+    .hero__inner {
+      gap: 1rem;
+    }
+    .hero__frame {
+      top: 76svh;
+      width: 46vw;
+    }
+    .hero__title {
+      max-width: 12ch;
+      font-size: clamp(2.25rem, 10.5vw, 3rem);
+    }
+    .hero__dek {
+      font-size: 1.0625rem;
+    }
+    .hero__tag {
+      letter-spacing: 0.3em;
+    }
+  }
+
+  /* Reduced motion: a single static composition, no scroll travel. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero {
+      height: auto;
+    }
+    .hero__stage {
+      position: relative;
+      height: 100svh;
+      min-height: 40rem;
+    }
+    .hero__haze {
+      transform: translateY(30%);
+    }
+  }
+</style>

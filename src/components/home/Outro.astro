@@ -1,0 +1,56 @@
+---
+// Outro: full-bleed media under a dark scrim with one line and one CTA.
+// The film is softened on purpose: the 540px portrait source only works full-bleed as atmosphere.
+import Tone from "@/components/Tone.astro";
+import Button from "@/components/Button.astro";
+import LoopVideo from "@/components/LoopVideo.astro";
+import { outro } from "@/content/venora-content.ts";
+import { cta } from "@/content/navigation.ts";
+import { getHome } from "@/lib/homes.ts";
+import { loopSrc } from "@/lib/media.ts";
+
+const film = getHome("villa-2026-09-21")!;
+---
+
+<section class="outro on-dark" data-header-theme="dark" aria-labelledby="outro-title">
+  <div class="outro__media" aria-hidden="true">
+    <LoopVideo class="cover" src={loopSrc(film)} poster={film.media.poster} />
+  </div>
+  <div class="container outro__inner">
+    <Tone line={outro.title} class="h2" id="outro-title" />
+    <Button enquire variant="light">{cta.enquire}</Button>
+  </div>
+</section>
+
+<style>
+  .outro {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: clamp(30rem, 75svh, 42rem);
+    overflow: hidden;
+    background: var(--teal-900);
+    text-align: center;
+    isolation: isolate;
+  }
+  .outro__media {
+    position: absolute;
+    inset: -2%;
+    z-index: -1;
+    filter: blur(3px) saturate(0.85);
+  }
+  .outro__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgb(1 49 52 / 72%);
+  }
+  .outro__inner {
+    display: grid;
+    justify-items: center;
+    gap: 2rem;
+  }
+  .outro__inner :global(h2) {
+    max-width: 14ch;
+  }
+</style>

@@ -1,0 +1,110 @@
+---
+// Latest on film: the newest presentations, each with its date and two links.
+import Tone from "@/components/Tone.astro";
+import Still from "@/components/Still.astro";
+import Button from "@/components/Button.astro";
+import { latest } from "@/content/venora-content.ts";
+import { cta } from "@/content/navigation.ts";
+import { siteConfig } from "@/content/site-config.ts";
+import { allHomes, formatDate, typeLabels } from "@/lib/homes.ts";
+
+const items = allHomes().slice(0, 4);
+---
+
+<section class="section section--sand latest" data-header-theme="light" aria-labelledby="latest-title">
+  <div class="container">
+    <div class="split latest__head">
+      <Tone line={latest.title} class="h2" id="latest-title" wipe />
+      <div class="latest__intro">
+        <Tone line={latest.body} as="p" class="lead" />
+        <div class="actions">
+          <Button href="/homes">{cta.allHomes}</Button>
+          <Button href={siteConfig.contact.instagram.profileUrl} external variant="outline" icon="instagram">{latest.follow}</Button>
+        </div>
+      </div>
+    </div>
+    <ol class="latest__list" role="list">
+      {
+        items.map((p) => (
+          <li class="post" data-reveal>
+            <div class="post__body">
+              <p class="small post__meta">
+                <time datetime={p.presentedOn}>{formatDate(p.presentedOn)}</time> · {typeLabels[p.type].one}
+              </p>
+              <h3 class="h3">
+                <a class="post__link" href={`/homes/${p.slug}`}>
+                  {p.title}
+                </a>
+              </h3>
+              <p class="small muted">{p.observed.slice(0, 2).join(". ")}.</p>
+              <div class="actions post__actions">
+                <Button href={`/homes/${p.slug}`} variant="outline">
+                  {cta.viewHome}
+                </Button>
+                <Button href={p.source.url} external variant="outline" icon="external">
+                  {cta.watchOnInstagram}
+                </Button>
+              </div>
+            </div>
+            <a class="post__media" href={`/homes/${p.slug}`} tabindex="-1" aria-hidden="true">
+              <Still still={p.media.poster} sizes="(min-width: 900px) 45vw, 100vw" widths={[540, 720]} class="cover" decorative />
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .latest__head {
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .latest__intro {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .post {
+    display: grid;
+    gap: 1.5rem;
+    padding-block: clamp(1.75rem, 3vw, 2.5rem);
+    border-top: 1px solid var(--line);
+  }
+  @media (min-width: 900px) {
+    .post {
+      grid-template-columns: 43.26fr 56.74fr;
+      gap: 3rem;
+    }
+  }
+  .post__body {
+    display: grid;
+    align-content: start;
+    gap: 0.9rem;
+  }
+  .post__meta {
+    font-weight: 500;
+  }
+  .post__link {
+    text-decoration: none;
+  }
+  .post__link:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+  }
+  .post__actions {
+    margin-top: 0.5rem;
+  }
+  .post__media {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--sand-200);
+  }
+  .post__media :global(img) {
+    transition: transform 1.2s var(--ease-out);
+  }
+  .post:hover .post__media :global(img) {
+    transform: scale(1.04);
+  }
+</style>

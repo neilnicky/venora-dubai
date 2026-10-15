@@ -1,0 +1,68 @@
+---
+// Why Venora: caption + line-wipe paragraph, then three portrait films that grow into place
+// (the 720px portrait sources stay sharp at this size).
+import Tone from "@/components/Tone.astro";
+import LoopVideo from "@/components/LoopVideo.astro";
+import { why } from "@/content/venora-content.ts";
+import { getHome } from "@/lib/homes.ts";
+import { loopSrc } from "@/lib/media.ts";
+
+const films = ["villa-2026-10-13", "penthouse-2026-09-28", "villa-2026-10-01"].map((s) => getHome(s)!);
+---
+
+<section class="section why" data-header-theme="light" aria-labelledby="why-title">
+  <div class="container">
+    <div class="split">
+      <h2 class="caption" id="why-title">{why.caption}</h2>
+      <Tone line={why.body} as="p" class="why__text" wipe />
+    </div>
+    <div class="why__panel" data-grow>
+      {
+        films.map((p) => (
+          <a class="why__film" href={`/homes/${p.slug}`} aria-label={p.title}>
+            <LoopVideo class="cover" src={loopSrc(p)} poster={p.media.poster} />
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .why {
+    padding-top: clamp(4rem, 9vw, 8rem);
+  }
+  .why__text {
+    font-size: clamp(1.625rem, 2.8vw, 2.5rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+  .why__panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(0.5rem, 1vw, 1rem);
+    margin-top: clamp(3rem, 7vw, 6rem);
+    will-change: clip-path, transform;
+  }
+  .why__film {
+    display: block;
+    aspect-ratio: 9 / 14;
+    overflow: hidden;
+    background: var(--sand-100);
+  }
+  .why__film :global(video) {
+    transition: transform 1.2s var(--ease-out);
+  }
+  .why__film:hover :global(video) {
+    transform: scale(1.04);
+  }
+  @media (max-width: 699px) {
+    .why__panel {
+      grid-template-columns: 1fr 1fr;
+    }
+    .why__film:last-child {
+      display: none;
+    }
+  }
+</style>

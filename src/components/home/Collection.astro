@@ -1,0 +1,206 @@
+---
+// Browse by type: Villas / Penthouses / Apartments with live counts, linking to the filtered archive.
+// Hover/focus: clip inset(100% 0 0) → 0 over 1s, scale 1.05 → 1 over 4s, arrow x -18 → 0 over .8s.
+import Tone from "@/components/Tone.astro";
+import Still from "@/components/Still.astro";
+import Button from "@/components/Button.astro";
+import Icon from "@/components/Icon.astro";
+import { collection } from "@/content/venora-content.ts";
+import { cta } from "@/content/navigation.ts";
+import { allHomes, countByType, getHome, propertyTypes, typeLabels } from "@/lib/homes.ts";
+
+const counts = countByType(allHomes());
+const bg = {
+  villa: getHome("villa-2026-10-13")!.media.gallery[0]!,
+  penthouse: getHome("penthouse-2026-09-14")!.media.gallery[0]!,
+  apartment: getHome("apartment-2026-09-30")!.media.gallery[0]!,
+};
+const rows = propertyTypes.filter((t) => counts[t] > 0);
+---
+
+<section class="section section--dark collection" data-header-theme="dark" aria-labelledby="collection-title">
+  <div class="container split collection__head">
+    <p class="caption">{collection.caption}</p>
+    <Tone line={collection.title} class="h2" id="collection-title" />
+  </div>
+
+  <ul class="collection__rows" role="list">
+    {
+      rows.map((t, i) => (
+        <li>
+          <a class="row" href={`/homes?type=${t}`}>
+            <span class="row__bg" aria-hidden="true">
+              <Still still={bg[t]} sizes="100vw" widths={[720]} class="cover" decorative />
+            </span>
+            <span class="container row__inner">
+              <span class="row__num small">{i + 1}</span>
+              <span class="row__text small">{collection.rows[t]}</span>
+              <span class="row__word display">
+                <span class="row__label">{typeLabels[t].many}</span>
+                <span class="row__count small">
+                  {counts[t]} {counts[t] === 1 ? "home" : "homes"}
+                </span>
+              </span>
+              <Icon name="arrow" class="row__arrow" />
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="container split collection__brief">
+    <Tone line={collection.brief} as="p" class="lead" wipe />
+    <div><Button enquire variant="outline-light">{cta.enquire}</Button></div>
+  </div>
+</section>
+
+<style>
+  .collection__head {
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .collection__rows {
+    border-top: 1px solid var(--line-dark);
+  }
+  .row {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line-dark);
+    text-decoration: none;
+    transition: color 0.4s ease;
+  }
+  .row__bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    clip-path: inset(100% 0 0);
+    transform: scale(1.05);
+    transition:
+      opacity 0.4s,
+      transform 4s var(--ease-settle),
+      clip-path 1s var(--ease-out);
+  }
+  .row__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgb(1 35 37 / 58%);
+  }
+  .row__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.25rem 1fr auto;
+    grid-template-areas:
+      "num word arrow"
+      ". text text";
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding-block: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  @media (min-width: 900px) {
+    .row__inner {
+      grid-template-columns: 2.25rem 18.75rem 1fr auto;
+      grid-template-areas: "num text word arrow";
+      gap: 2rem;
+    }
+  }
+  .row__num {
+    grid-area: num;
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    align-self: start;
+  }
+  .row__text {
+    grid-area: text;
+    max-width: 19rem;
+  }
+  .row__word {
+    grid-area: word;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    min-width: 0;
+  }
+  @media (min-width: 900px) {
+    .row__word {
+      padding-left: calc(43.26% - 23rem);
+    }
+  }
+  .row__label {
+    position: relative;
+    font-size: clamp(2.5rem, 9vw, 8.75rem);
+    line-height: 1;
+  }
+  .row__label::after {
+    content: "";
+    position: absolute;
+    left: 0.04em;
+    right: 0.04em;
+    bottom: -0.06em;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.8s var(--ease-out);
+  }
+  .row__count {
+    color: var(--gold-mute);
+    white-space: nowrap;
+  }
+  .row :global(.row__arrow) {
+    grid-area: arrow;
+    width: clamp(1.75rem, 5vw, 4.5rem);
+    height: auto;
+    stroke-width: 1;
+    opacity: 0.35;
+    transform: translateX(-18px);
+    transition:
+      opacity 0.4s,
+      transform 0.8s var(--ease-out);
+  }
+  .collection__rows:has(.row:hover) .row:not(:hover) {
+    color: var(--gold-mute);
+  }
+  .row:hover .row__bg,
+  .row:focus-visible .row__bg {
+    opacity: 1;
+    clip-path: inset(0);
+    transform: scale(1);
+  }
+  .row:hover .row__label::after,
+  .row:focus-visible .row__label::after {
+    transform: scaleX(1);
+  }
+  .row:hover :global(.row__arrow),
+  .row:focus-visible :global(.row__arrow) {
+    opacity: 1;
+    transform: none;
+  }
+  .row:focus-visible {
+    outline-offset: -4px;
+  }
+  @media (hover: none) {
+    .row :global(.row__arrow) {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .collection__brief {
+    align-items: end;
+    padding-top: clamp(3rem, 6vw, 5rem);
+  }
+  .collection__brief .lead {
+    max-width: 36rem;
+  }
+  @media (min-width: 900px) {
+    .collection__brief > div {
+      justify-self: start;
+    }
+  }
+</style>

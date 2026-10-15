@@ -1,0 +1,25 @@
+---
+import Base from "@/layouts/Base.astro";
+import Hero from "@/components/home/Hero.astro";
+import Why from "@/components/home/Why.astro";
+import Portals from "@/components/home/Portals.astro";
+import Steps from "@/components/home/Steps.astro";
+import Audience from "@/components/home/Audience.astro";
+import Collection from "@/components/home/Collection.astro";
+import Routes from "@/components/home/Routes.astro";
+import Latest from "@/components/home/Latest.astro";
+import Outro from "@/components/home/Outro.astro";
+import { getHome } from "@/lib/homes.ts";
+---
+
+<Base overDark ogStill={getHome("villa-2026-10-06")!.media.poster.key}>
+  <Hero />
+  <Why />
+  <Portals />
+  <Steps />
+  <Audience />
+  <Collection />
+  <Routes />
+  <Latest />
+  <Outro />
+</Base>

@@ -1,0 +1,82 @@
+---
+// Portals: four arch-masked frames arrive in a staggered sequence.
+import Tone from "@/components/Tone.astro";
+import Still from "@/components/Still.astro";
+import { portals } from "@/content/venora-content.ts";
+import { allHomes, formatDate, getHome, presentedRange } from "@/lib/homes.ts";
+
+const picks = ["villa-2026-10-09", "penthouse-2026-09-14", "apartment-2026-09-30", "villa-2026-09-16"].map((s) => getHome(s)!);
+const homes = allHomes();
+const range = presentedRange(homes);
+const body = portals.body
+  .replace("{count}", String(homes.length))
+  .replace("{from}", formatDate(range.from))
+  .replace("{to}", formatDate(range.to));
+---
+
+<section class="section portals" aria-labelledby="portals-title">
+  <div class="container portals__inner">
+    <Tone line={portals.title} class="h2" id="portals-title" wipe />
+    <ul class="portals__row" role="list" data-cascade>
+      {
+        picks.map((p, i) => (
+          <li class="portals__item" style={`--i:${i}`}>
+            <a href={`/homes/${p.slug}`} class="portals__frame">
+              <Still still={p.media.poster} sizes="(min-width: 900px) 18vw, 42vw" widths={[360, 540]} class="cover" />
+              <span class="visually-hidden">{p.title}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="lead portals__body" data-reveal>{body}</p>
+  </div>
+</section>
+
+<style>
+  .portals__inner {
+    display: grid;
+    justify-items: center;
+    gap: clamp(2.5rem, 5vw, 4rem);
+    text-align: center;
+  }
+  .portals__row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 16.25rem));
+    gap: clamp(0.75rem, 1.5vw, 1.5rem);
+    justify-content: center;
+    width: 100%;
+  }
+  .portals__frame {
+    display: block;
+    aspect-ratio: 260 / 330;
+    overflow: hidden;
+    border-radius: 999px 999px 0 0;
+    background: var(--sand-100);
+  }
+  .portals__frame :global(img) {
+    transition: transform 1.2s var(--ease-out);
+  }
+  .portals__frame:hover :global(img) {
+    transform: scale(1.05);
+  }
+  /* Enter: scale .8, x -26px, opacity .1 → rest, staggered. */
+  .portals__item {
+    transition:
+      transform 0.9s var(--ease-out),
+      opacity 0.9s var(--ease-out);
+    transition-delay: calc(var(--i) * 0.12s);
+  }
+  :global(.js) [data-cascade]:not(.is-in) .portals__item {
+    opacity: 0.1;
+    transform: translateX(-1.6rem) scale(0.8);
+  }
+  .portals__body {
+    max-width: 38rem;
+  }
+  @media (max-width: 699px) {
+    .portals__row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

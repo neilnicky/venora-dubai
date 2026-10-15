@@ -1,0 +1,136 @@
+---
+// Exclusive homes and investment opportunities: three image cards; the hovered card widens via a
+// grid-template-columns transition (1s, cubic-bezier(.16,1,.3,1)) and its text fades in.
+import Tone from "@/components/Tone.astro";
+import Still from "@/components/Still.astro";
+import Button from "@/components/Button.astro";
+import { routes } from "@/content/venora-content.ts";
+import { cta } from "@/content/navigation.ts";
+import { getHome } from "@/lib/homes.ts";
+import type { Interest } from "@/lib/enquiry.ts";
+
+const images = [
+  getHome("villa-2026-10-06")!.media.gallery[0]!,
+  getHome("penthouse-2026-09-28")!.media.gallery[0]!,
+  getHome("villa-2026-09-23")!.media.gallery[0]!,
+];
+---
+
+<section class="section section--dark routes" data-header-theme="dark" aria-labelledby="routes-title">
+  <div class="container">
+    <div class="split routes__head">
+      <Tone line={routes.title} class="h2" id="routes-title" />
+      <div class="routes__intro">
+        <Tone line={routes.body} as="p" class="lead" />
+        <div><Button href="/homes" variant="light">{cta.viewHomes}</Button></div>
+      </div>
+    </div>
+    <ul class="routes__cards" role="list">
+      {
+        routes.cards.map((c, i) => (
+          <li class="card">
+            <span class="card__bg" aria-hidden="true">
+              <Still still={images[i]!} sizes="(min-width: 900px) 40vw, 100vw" widths={[540, 720]} class="cover" decorative />
+            </span>
+            <h3 class="h3 card__title">{c.title}</h3>
+            <p class="small card__text">{c.text}</p>
+            <div class="card__more">
+              {"href" in c && c.href ? (
+                <Button href={c.href} variant="outline-light">
+                  {c.action}
+                </Button>
+              ) : (
+                <Button enquire={{ interest: c.interest as Interest }} variant="outline-light">
+                  {c.action}
+                </Button>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .routes {
+    padding-top: 0;
+  }
+  .routes__head {
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .routes__intro {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .routes__cards {
+    display: grid;
+    gap: 0.75rem;
+  }
+  @media (min-width: 900px) {
+    .routes__cards {
+      grid-template-columns: 1fr 1fr 1fr;
+      transition: grid-template-columns 1s var(--ease-out);
+    }
+    .routes__cards:has(.card:nth-child(1):hover, .card:nth-child(1):focus-within) {
+      grid-template-columns: 1.55fr 1fr 1fr;
+    }
+    .routes__cards:has(.card:nth-child(2):hover, .card:nth-child(2):focus-within) {
+      grid-template-columns: 1fr 1.55fr 1fr;
+    }
+    .routes__cards:has(.card:nth-child(3):hover, .card:nth-child(3):focus-within) {
+      grid-template-columns: 1fr 1fr 1.55fr;
+    }
+  }
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: clamp(20rem, 26vw, 22rem);
+    padding: 1.5rem;
+    overflow: hidden;
+    color: var(--gold-200);
+  }
+  .card__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .card__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(1 35 37 / 72%) 0%, rgb(1 35 37 / 30%) 45%, rgb(1 35 37 / 78%) 100%);
+  }
+  .card__bg :global(img) {
+    transform: scale(1.01);
+    transition: transform 1.2s var(--ease-out);
+  }
+  .card:hover .card__bg :global(img) {
+    transform: scale(1.06);
+  }
+  .card {
+    isolation: isolate;
+  }
+  .card__title {
+    max-width: 14rem;
+  }
+  .card__text {
+    max-width: 17rem;
+    margin-top: 0.75rem;
+  }
+  @media (min-width: 900px) and (hover: hover) {
+    .card__text {
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .card:hover .card__text,
+    .card:focus-within .card__text {
+      opacity: 1;
+    }
+  }
+  .card__more {
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+</style>

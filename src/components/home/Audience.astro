@@ -1,0 +1,66 @@
+---
+// Trust band. Venora has no verified testimonials, so this shows verified, dated public figures.
+import { audience } from "@/content/venora-content.ts";
+import { siteConfig } from "@/content/site-config.ts";
+import { allHomes, countByType, formatDate } from "@/lib/homes.ts";
+
+const counts = countByType(allHomes());
+const stats = [
+  { value: siteConfig.audience.followers, label: "Instagram followers" },
+  { value: String(siteConfig.audience.posts), label: "Posts published" },
+  { value: String(counts.all), label: "Homes with films here" },
+  { value: String(counts.villa), label: "Villas presented" },
+];
+---
+
+<section class="audience" aria-labelledby="audience-title">
+  <div class="container">
+    <div class="audience__band on-dark" data-reveal>
+      <h2 class="visually-hidden" id="audience-title">{audience.label}</h2>
+      <dl class="audience__grid">
+        {
+          stats.map((s) => (
+            <div>
+              <dt class="small muted">{s.label}</dt>
+              <dd class="display audience__value">{s.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="small muted audience__note">{audience.note.replace("{date}", formatDate(siteConfig.audience.asOf))}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .audience {
+    padding-bottom: var(--section-y);
+  }
+  .audience__band {
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border-radius: var(--radius);
+    background: var(--teal-900);
+  }
+  .audience__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .audience__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .audience__grid > div {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.35rem;
+  }
+  .audience__value {
+    font-size: clamp(2.25rem, 4vw, 3.5rem);
+    line-height: 1;
+  }
+  .audience__note {
+    margin-top: 1.5rem;
+  }
+</style>
